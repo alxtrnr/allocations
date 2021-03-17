@@ -1,70 +1,67 @@
-def options():
-    print('''
-1: add staff
-2: add patient observations
-''')
-    conduit()
-
-
-def conduit():
-    choice = int(input('type the choice number you require: '))
-    if choice == 1:
-        add_staff()
-    elif choice == 2:
-        one_to_ones_eyesight()
-
-
 def add_staff():
-    sn = int(input('How many staff on duty? '))
-    team = [input('Enter staff name and designation: ').split() for x in range(sn)]
-    collector(team)
-    one_to_ones_eyesight()
+    data = []
+
+    # sn = int(input('How many staff on duty? '))
+    # team = [input('Enter staff name and designation: ').split() for x in range(sn)]
+    team = [['Abdullah', 'HCA'], ['Brighton', 'HCA'], ['Emmanuel', 'HCA'], ['Jade', 'HCA'], ['Tina', 'HCA'],
+            ['Anthony', 'HCA'], ['Ismalia', 'HCA'], ['Babatunde', 'HCA'], ['Chuck', 'HCA'], ['Becky', 'HCA'],
+            ['Joseph', 'RMN'], ['Alex', 'RMN'], ['Walter', 'RMN']]
+    team_dict = dict(zip([x[0] for x in team], [x[1] for x in team]))
+    data.append(team_dict)
+    one_to_ones_eyesight(data)
 
 
-def one_to_ones_eyesight():
-    pn = int(input('How many patients on 1:1 eyesight: '))
-    one2one_eyesight = [input('Enter patient initials and room number: ').split() for x in range(pn)]
-    collector(one2one_eyesight)
-    one_to_ones_armslength()
+def one_to_ones_eyesight(data):
+    # pn = int(input('How many patients on 1:1 eyesight: '))
+    # one2one_eyesight = [input('Enter patient initials and room number: ').split() for x in range(pn)]
+    one2one_eyesight = [['DK', 11], ['JS', 3], ['SGM', 9], ['SJ', 10]]
+    eyesight_dict = dict(zip([x[0] for x in one2one_eyesight], [x[1] for x in one2one_eyesight]))
+    data.append(eyesight_dict)
+    one_to_ones_armslength(data)
 
 
-
-def one_to_ones_armslength():
-    pn = int(input('How many patients on 1:1 arms length: '))
-    one2one_armslength = [input('Enter patient initials and room number: ').split() for x in range(pn)]
-    collector(one2one_armslength)
-
-
-
-def collector(*args):
-    my_list = []
-    my_list.append(args)
-    print(my_list)
-
-# print(o)
-# #
-#
-# def one_to_ones_isolation():
-#     pn = int(input('How many patients on 1:1 isolation: '))
-#     one2one_isolation = [input('Enter patient initials and room number: ').split() for x in range(pn)]
-#     seclusion()
-#     return one2one_isolation
-#
-#
-# def seclusion():
-#     pn = int(input('How many patients in seclusion: '))
-#     seclusion_room = [input('Enter patient initials and room number: ').split() for x in range(pn)]
-#     two_to_ones()
-#     return seclusion_room
-#
-#
-# def two_to_ones():
-#     pn = int(input('How many patients on 2:1 observations: '))
-#     two2ones = [input('Enter patient initials, obs level and room number: ').split() for x in range(pn)]
-#     return two2ones
+def one_to_ones_armslength(data):
+    # pn = int(input('How many patients on 1:1 arms length: '))
+    # one2one_armslength = [input('Enter patient initials and room number: ').split() for x in range(pn)]
+    one2one_armslength = [['JH', 8]]
+    armslength_dict = dict(zip([x[0] for x in one2one_armslength], [x[1] for x in one2one_armslength]))
+    data.append(armslength_dict)
+    one_to_ones_isolation(data)
 
 
-options()
+def one_to_ones_isolation(data):
+    # pn = int(input('How many patients on 1:1 isolation: '))
+    # one2one_isolation = [input('Enter patient initials and room number: ').split() for x in range(pn)]
+    one2one_isolation = [['PP', 14]]
+    isolation_dict = dict(zip([x[0] for x in one2one_isolation], [x[1] for x in one2one_isolation]))
+    data.append(isolation_dict)
+    seclusion(data)
+
+
+def seclusion(data):
+    pn = int(input('How many patients in seclusion: '))
+    seclusion_room = [input('Enter patient initials and room number: ').split() for x in range(pn)]
+    seclusion_dict = dict(zip([x[0] for x in seclusion_room], [x[1] for x in seclusion_room]))
+    data.append(seclusion_dict)
+    two_to_ones(data)
+
+
+def two_to_ones(data):
+    pn = int(input('How many patients on 2:1 observations: '))
+    two2ones = [input('Enter patient initials, obs level and room number: ').split() for x in range(pn)]
+    two2ones_dict = dict(zip([x[0] for x in two2ones], [x[1] for x in two2ones]))
+    data.append(two2ones_dict)
+    display(data)
+
+
+def display(data):
+    '''
+    data is a list of dictionaries
+    '''
+    print(data)
+
+
+add_staff()
 
 #
 # obs_list = []

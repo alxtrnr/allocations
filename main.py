@@ -32,7 +32,7 @@ def one_to_ones_eyesight(data):
         """
     # pn = int(input('How many patients on 1:1 eyesight: '))
     # one2one_eyesight = [input('Enter patient initials and room number: ').split() for x in range(pn)]
-    one2one_eyesight = [['DK', 11], ['JS', 3], ['SGM', 9], ['SJ', 10]]
+    one2one_eyesight = [['CD', 11], ['ROM', 3], ['HD', 9], ['LCD', 10]]
     eyesight_dict = dict(zip([x[0] for x in one2one_eyesight], [x[1] for x in one2one_eyesight]))
     data.append(eyesight_dict)
     one_to_ones_armslength(data)
@@ -50,7 +50,7 @@ def one_to_ones_armslength(data):
         """
     # pn = int(input('How many patients on 1:1 arms length: '))
     # one2one_armslength = [input('Enter patient initials and room number: ').split() for x in range(pn)]
-    one2one_armslength = [['JH', 8]]
+    one2one_armslength = [['LG', 8]]
     armslength_dict = dict(zip([x[0] for x in one2one_armslength], [x[1] for x in one2one_armslength]))
     data.append(armslength_dict)
     one_to_ones_isolation(data)

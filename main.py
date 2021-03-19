@@ -1,3 +1,5 @@
+from colorama import Fore
+
 def add_hca():
     data = []
 
@@ -87,8 +89,9 @@ def seclusion(data):
 
         :return: data
         """
-    pn = int(input('How many patients in seclusion: '))
-    seclusion_room = [input('Enter patient initials and room number: ').split() for x in range(pn)]
+    # pn = int(input('How many patients in seclusion: '))
+    # seclusion_room = [input('Enter patient initials and room number: ').split() for x in range(pn)]
+    seclusion_room = [['ZZ', 114]]
     seclusion_dict = dict(zip([x[0] for x in seclusion_room], [x[1] for x in seclusion_room]))
     data.append(seclusion_dict)
     two_to_ones(data)
@@ -107,27 +110,73 @@ def two_to_ones(data):
 
         :return: data
         """
-    pn = int(input('How many patients on 2:1 observations: '))
-    two2ones = [input('Enter patient initials, obs level and room number: ').split() for x in range(pn)]
+    # pn = int(input('How many patients on 2:1 observations: '))
+    # two2ones = [input('Enter patient initials and room number: ').split() for x in range(pn)]
+    two2ones = [['KK', 23]]
     two2ones_dict = dict(zip([x[0] for x in two2ones], [x[1] for x in two2ones]))
     data.append(two2ones_dict)
+    intermittent_observations(data)
+
+
+def intermittent_observations(data):
+    intermittent = 11
+    data.append(intermittent)
     calculate_hours(data)
 
 
 def calculate_hours(data):
+    """
+
+    :param data:
+    :return:
+    """
+    # print()
+    # print(f'Data: {data}')
+    # print()
+
     hca_hours = 9.5 * len(data[0])
+    print(f'No. of HCA on shift: {len(data[0])}')
+    print(f'HCA hours: {hca_hours}\n')
+
     rmn_hours = 9.5 * len(data[1])
+    print(f'No. of RMN on shift: {len(data[1])}')
+    print(f'RMN hours: {rmn_hours}\n')
+
     eyesight_hours = 11 * len(data[2])
+    print(f'No. of patents on 1:1 eyesight: {len(data[2])}')
+    print(f'Eyesight hours: {eyesight_hours}')
+
     armslength_hours = 11 * len(data[3])
+    print(f'No. of patents on 1:1 armslength: {len(data[3])}')
+    print(f'Armslength hours: {armslength_hours}')
+
     isolation_hours = 11 * len(data[4])
+    print(f'No. of patents in isolation: {len(data[4])}')
+    print(f'Isolation hours: {isolation_hours}')
+
     seclusion_hours = 11 * len(data[5])
+    print(f'No. of patents in seclusion: {len(data[5])}')
+    print(f'Seclusion Hours: {seclusion_hours}\n')
+
     two2one_hours = 11 * len(data[6])
-    total_one2ones = len(data[2]) + len(data[3]) + len(data[4]) + len(data[5])
-    total_one2one_hours = total_one2ones * 11
-    hca_allocation = total_one2one_hours / len(data[0])
-    print(hca_hours, rmn_hours, eyesight_hours, armslength_hours, isolation_hours, seclusion_hours, two2one_hours)
-    print(total_one2ones)
-    print(f'hca_allocation: {hca_allocation}')
+    print(f'No. of patents on two2one: {len(data[6])}\n')
+
+    total_one2one_hours = eyesight_hours + armslength_hours + isolation_hours + seclusion_hours
+    total_observation_hours = total_one2one_hours + two2one_hours + data[7]
+
+    print(Fore.LIGHTGREEN_EX + f'Total one2one hours: {total_one2one_hours}', Fore.RESET)
+    print(Fore.LIGHTGREEN_EX + f'Total two2one hours: {two2one_hours}', Fore.RESET)
+    print(Fore.LIGHTGREEN_EX + f'Total intermittent hours: {data[7]}')
+    print(Fore.LIGHTGREEN_EX + f'Total observation hours to cover: {total_observation_hours}')
+
+    no_of_obs_per_hca = total_observation_hours / len(data[0])
+    print(Fore.LIGHTGREEN_EX + f'Number of observations per HCA: {no_of_obs_per_hca}', Fore.RESET)
+
+
+
+
+
+
 
 
 
@@ -149,7 +198,6 @@ def display(data):
     """
     for d in data:
         print(d)
-
 
 
 add_hca()

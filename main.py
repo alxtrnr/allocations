@@ -1,4 +1,6 @@
 from colorama import Fore
+import pandas as pd
+
 
 def add_hca():
     data = []
@@ -21,6 +23,9 @@ def add_rmn(data):
     rmn_dict = dict(zip([x[0] for x in rmn], ['RMN' for n in range(len(rmn))]))
     data.append(rmn_dict)
     one_to_ones_eyesight(data)
+
+
+
 
 
 def one_to_ones_eyesight(data):
@@ -171,15 +176,6 @@ def calculate_hours(data):
 
     no_of_obs_per_hca = total_observation_hours / len(data[0])
     print(Fore.LIGHTGREEN_EX + f'Number of observations per HCA: {no_of_obs_per_hca}', Fore.RESET)
-
-
-
-
-
-
-
-
-
 
 
 def display(data):

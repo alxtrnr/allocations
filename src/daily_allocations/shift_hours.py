@@ -50,27 +50,50 @@ def n_hours():
 
 
 def custom_hours():
-    mid_times = []
-    hour = int(input('Start time: '))
-    minute = [0, 30]
-    even_odd = 1
+    from datetime import datetime
 
-    for i in range(16):
-        if even_odd % 2 != 0:
-            choice = 0
-        else:
-            choice = 1
+    st = input("Enter start time in 24h format (HH:MM): ")
+    et = input("Enter end time in 24h format (HH:MM): ")
 
-        t = datetime(year=NOW.year, month=NOW.month, day=NOW.day, hour=hour, minute=minute[choice],
-                     microsecond=NOW.microsecond)
-        mid_times.append(t.strftime('%H:%M'))
-        even_odd += 1
+    # convert input to datetime objects
+    st = datetime.strptime(st, "%H:%M")
+    et = datetime.strptime(et, "%H:%M")
 
-        if even_odd % 2 != 0:
-            hour += 1
-        if hour > 23:
-            hour -= 24
+    # calculate and round the duration to hours and minutes
+    d = et - st
+    total_seconds = d.total_seconds()
+    hours, remainder = divmod(int(total_seconds), 3600)
+    minutes, seconds = divmod(remainder, 60)
 
-    return mid_times
+    # format datetime objects to only include hours and minutes
+    st_formatted = st.strftime("%H:%M")
+    et_formatted = et.strftime("%H:%M")
+
+    # print values
+    print("Start time:", st_formatted)
+    print("End time:", et_formatted)
+    print("Duration: {} hours {} minutes".format(hours, minutes))
+
+    # mid_times = []
+    # hour = int(input('Start time: '))
+    # minute = [0, 30]
+    # even_odd = 1
+    #
+    # for i in range(16):
+    #     if even_odd % 2 != 0:
+    #         choice = 0
+    #     else:
+    #         choice = 1
+    #
+    #     t = datetime(year=NOW.year, month=NOW.month, day=NOW.day, hour=hour, minute=minute[choice],
+    #                  microsecond=NOW.microsecond)
+    #     mid_times.append(t.strftime('%H:%M'))
+    #     even_odd += 1
+    #
+    #     if even_odd % 2 != 0:
+    #         hour += 1
+    #     if hour > 23:
+    #         hour -= 24
 
 
+custom_hours()

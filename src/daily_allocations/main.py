@@ -116,16 +116,6 @@ def patient_menu():
 
 
 def staff_menu():
-    """
-    This function displays the staff menu, and allows the user to select an option.
-    The options are:
-        1. Show staff details
-        2. Add staff
-        3. Update staff
-        4. Return to main menu
-    The function will then call the appropriate function for the selected option.
-    :return:
-    """
     print("""
     1. Show staff details
     2. Add staff
@@ -221,28 +211,6 @@ def update_patient():
 
 
 def delete_patient():
-    """
-This is a function that deletes a patient from the staff_table in a database using the SQLAlchemy library.
-
-The function begins by printing the current state of the staff_table using the patient_table() function.
-
-It then prompts the user to enter the ID of the patient they would like to delete. This ID is stored in the
-patient_id_to_delete variable as an integer.
-
-The function then uses the session.query() method to retrieve the patient with the specified ID from the staff_table.
-This patient is stored in the patient_to_delete variable.
-
-The function then prints the name of the patient that will be deleted.
-
-Next, the function uses the session.delete() method to delete the patient from the staff_table.
-
-The function then prompts the user to enter 'y' if they would like to delete more patients. If the user enters 'y', the
-function calls itself again to delete more patients. If the user enters anything else, or if the user doesn't enter any
-input, the function moves on to the next step.
-
-Finally, the function uses the session.commit() method to save the changes to the database and commit the transaction.
-It then calls the patient_menu() function.
-    """
     print(patients_df())
 
     patient_id_to_delete = int(input('enter ID of patient to delete: '))
@@ -335,11 +303,6 @@ def assign_staff_to_obs():
 
 
 def staff_team_df():
-    """
-This function creates a pandas DataFrame from the StaffTable object of an SQLAlchemy session.
-The DataFrame contains the staff's name, role, hours, and ID, and is sorted by role.
-The function returns the DataFrame.
-"""
     query = session.query(StaffTable)
     all_rows = query.all()
     data = [[row.id, row.name, row.role, row.assigned] for row in all_rows]
@@ -349,14 +312,6 @@ The function returns the DataFrame.
 
 
 def patients_df():
-    """
-    Here's what the function is doing
-1.    The function starts by creating a query from the PatientTable class in the session.
-2.    The query is then executed to retrieve all the rows from the table.
-3.    The retrieved rows are then stored in a list and converted into a DataFrame.
-4.    The DataFrame is then set to be indexed by Room Num and sorted by Room Num.
-5.    Finally, the DataFrame is returned.
-    """
     query = session.query(PatientTable)
     all_rows = query.all()
     data = [[row.id, row.name, row.observation_level, row.room_number] for row in all_rows]
@@ -425,8 +380,6 @@ def decision_variables_dashboard():
         print(f'{n + 1}. {staff.name} ({staff.role})')
 
     main_menu()
-
-    return tc
 
 
 if __name__ == '__main__':

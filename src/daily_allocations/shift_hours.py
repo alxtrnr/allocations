@@ -40,8 +40,8 @@ def create_shift_list(start_time, end_time):
 
 def get_and_show_shift_hours(start_time, end_time):
     shift_hours = create_shift_list(start_time, end_time)
-    # print("Start time:", start_time)
-    # print("End time:", end_time)
+    print("Start time:", start_time)
+    print("End time:", end_time)
 
     start_time = datetime.strptime(start_time, "%H:%M")
     end_time = datetime.strptime(end_time, "%H:%M")
@@ -54,9 +54,8 @@ def get_and_show_shift_hours(start_time, end_time):
     total_seconds = duration.total_seconds()
     hours, remainder = divmod(int(total_seconds), 3600)
     minutes, _ = divmod(remainder, 60)
-    # print("Duration: {} hours {} minutes".format(hours, minutes))
-    # print("Shift hours:", shift_hours)
-    return shift_hours
+    print("Duration: {} hours {} minutes".format(hours, minutes))
+    print("Shift hours:", shift_hours)
 
 
 def ld_hours():
@@ -68,13 +67,11 @@ def ld_hours():
 def n_hours():
     st = '20:00'
     et = '08:00'
-    get_and_show_shift_hours(st, et)
+    return create_shift_list(st, et)
 
 
 def custom_hours():
     st = input("Enter start time in 24h format (HH:MM): ")
     et = input("Enter end time in 24h format (HH:MM): ")
-    get_and_show_shift_hours(st, et)
-
-
+    return create_shift_list(st, et)
 

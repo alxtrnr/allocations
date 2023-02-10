@@ -1,9 +1,13 @@
+import datetime
+
 from daily_allocations import staffing_matrix
+from daily_allocations.sit_rep import summary
+
 from datetime import timedelta
 
 import pandas as pd
 from daily_allocations import shift_hours
-from sqlalchemy import Column, Integer, String, Boolean
+from sqlalchemy import Column, Integer, String, Boolean, Time, Float
 from sqlalchemy import ForeignKey
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
@@ -27,6 +31,10 @@ class StaffTable(Base):
     name = Column(String)
     role = Column(String)
     assigned = Column(Boolean, default=False)
+    start_obs = Column(Time)
+    end_obs = Column(Time)
+    shift_duration = Column(Float, default=0)
+    break_duration = Column(Float, default=0)
 
 
 class PatientTable(Base):
@@ -35,15 +43,6 @@ class PatientTable(Base):
     name = Column(String)
     observation_level = Column(String)
     room_number = Column(String)
-
-
-class StaffOnObsTable(Base):
-    __tablename__ = 'staff_on_obs_table'
-    id = Column(Integer, primary_key=True)
-    name = Column(String)
-    role = Column(String)
-    start_time = Column(String)
-    end_time = Column(String)
 
 
 # Create all the tables in the database which are defined by Base's subclasses
@@ -71,7 +70,7 @@ def main_menu():
     2. Patient Group
     3. Allocate
     4. Staffing Matrix
-    5. Working Data
+    5. Situation Report
     6. Exit
     """)
 
@@ -82,21 +81,18 @@ def main_menu():
     elif choice == '3':
         allocations_menu()
     elif choice == '4':
-        staffing_matrix.matrix()
+        sm, sm_df = staffing_matrix.matrix()
+        print('\nBase Staffing Matrix\n')
+        print(sm_df)
         main_menu()
     elif choice == '5':
-        decision_variables_dashboard()
+        summary()
+        main_menu()
     elif choice == '6':
         quit()
 
 
 def patient_menu():
-    """
-    This function displays the patient menu.
-    It takes no arguments.
-    It returns nothing.
-    :return:
-    """
     print("""
     1. Show patients' details 
     2. Add patient(s) details
@@ -286,18 +282,55 @@ def assign_staff_to_obs():
     select_staff = [staff_id for staff_id in input('\nID of staff to assign on obs: ').split()]
     selected_staff = [session.query(StaffTable).get(staff_id) for staff_id in select_staff]
 
-    for staff in all_rows:
-        if staff in selected_staff:
-            staff.assigned = True
-        else:
-            staff.assigned = False
-    session.commit()
+    if len(selected_staff) == 1:
+        staff = selected_staff[0]
+        staff.assigned = True
+        allocate_for = input(f'allocate {staff.name} for: long day(1), nights(2), custom hours(3)\n')
+        if allocate_for == '1':
+            staff.start_obs = (lambda x: datetime.datetime.strptime(x, '%H:%M').time())('08:00')
+            staff.end_obs = (lambda x: datetime.datetime.strptime(x, '%H:%M').time())('20:00')
+            staff.shift_duration = (datetime.datetime.combine(datetime.date.today(), staff.end_obs) -
+                                    datetime.datetime.combine(datetime.date.today(), staff.start_obs)).seconds / 3600
 
-    print('\nAssigned to undertake observations:')
-    assigned_query = session.query(StaffTable).filter_by(assigned=True)
-    for n, staff in enumerate(assigned_query):
-        print(f'{n + 1}. {staff.name} ({staff.role})')
-    print('\n', staff_team_df())
+        elif allocate_for == '2':
+            staff.start_obs = (lambda x: datetime.datetime.strptime(x, '%H:%M').time())('20:00')
+            staff.end_obs = (lambda x: datetime.datetime.strptime(x, '%H:%M').time())('08:00')
+            staff.shift_duration = (datetime.datetime.combine(datetime.date.today(), staff.end_obs) -
+                                    datetime.datetime.combine(datetime.date.today(), staff.start_obs)).seconds / 3600
+
+        elif allocate_for == '3':
+            staff.start_obs = input(f"Enter {staff.name}\'s start time in 24h format (HH:MM): ")
+            staff.end_obs = input(f"Enter {staff.name}\'s end time in 24h format (HH:MM): ")
+            staff.shift_duration = (datetime.datetime.combine(datetime.date.today(), staff.end_obs) -
+                                    datetime.datetime.combine(datetime.date.today(), staff.start_obs)).seconds / 3600
+
+        print(f'{staff.name} ({staff.role}) has been assigned for observations from {staff.start_obs} to '
+              f'{staff.end_obs}')
+    else:
+        for staff in all_rows:
+            if staff in selected_staff:
+                staff.assigned = True
+            else:
+                staff.assigned = False
+                staff.start_obs = None
+                staff.end_obs = None
+
+        allocate_for = input(f'allocate for: long day(1), nights(2), custom hours(3)\n')
+        print('\nAssigned for observations:')
+        assigned_query = session.query(StaffTable).filter_by(assigned=True)
+        for n, staff in enumerate(assigned_query):
+            if allocate_for == '1':
+                staff.start_obs = (lambda x: datetime.datetime.strptime(x, '%H:%M').time())('08:00')
+                staff.end_obs = (lambda x: datetime.datetime.strptime(x, '%H:%M').time())('20:00')
+            elif allocate_for == '2':
+                staff.start_obs = (lambda x: datetime.datetime.strptime(x, '%H:%M').time())('20:00')
+                staff.end_obs = (lambda x: datetime.datetime.strptime(x, '%H:%M').time())('08:00')
+            elif allocate_for == '3':
+
+                staff.start_obs = (lambda x: datetime.datetime.strptime(x, '%H:%M').time())('23:00')
+                staff.end_obs = (lambda x: datetime.datetime.strptime(x, '%H:%M').time())(input("23:56"))
+            print(f'{n + 1}. {staff.name} ({staff.role}) from {staff.start_obs} to {staff.end_obs}')
+    session.commit()
     main_menu()
     return assigned_query
 
@@ -305,8 +338,10 @@ def assign_staff_to_obs():
 def staff_team_df():
     query = session.query(StaffTable)
     all_rows = query.all()
-    data = [[row.id, row.name, row.role, row.assigned] for row in all_rows]
-    df = pd.DataFrame(data, columns=['ID', 'Name', 'Role', 'Assigned on obs'])
+    data = [[row.id, row.name, row.role, row.assigned, row.start_obs, row.end_obs, row.shift_duration,
+             row.break_duration] for row in all_rows]
+    df = pd.DataFrame(data, columns=['ID', 'Name', 'Role', 'Assigned', 'Obs Start', 'Obs End', 'Obs Duration',
+                                     'Break Duration'])
     all_staff = df.set_index('ID').sort_values(by='Role')
     return all_staff
 
@@ -342,42 +377,7 @@ def observations_df():
     df = pd.DataFrame(data, columns=['Name', 'Observation Level', 'Room No.'])
     # df.set_index('Room No.', inplace=True)
     df.sort_values(by='Room No.', ascending=True, inplace=True)
-
     print(df)
-
-    main_menu()
-
-
-def decision_variables_dashboard():
-    totals = {
-        'patients_on_ward': session.query(PatientTable).count(),
-        'number_on_60s':    session.query(PatientTable).filter(PatientTable.observation_level == '60m').count(),
-        'number_on_30s':    session.query(PatientTable).filter(PatientTable.observation_level == '30m').count(),
-        'number_on_15s':    session.query(PatientTable).filter(PatientTable.observation_level == '15m').count(),
-        'number_on_1:1':    session.query(PatientTable).filter(PatientTable.observation_level == '1:1').count(),
-        'number_on_2:1':    session.query(PatientTable).filter(PatientTable.observation_level == '2:1').count(),
-        'number_in_SEC':    session.query(PatientTable).filter(PatientTable.observation_level == 'Seclusion').count(),
-        'number_in_LTS':    session.query(PatientTable).filter(PatientTable.observation_level == 'LTS').count(),
-        'assigned_staff':   session.query(StaffTable).filter_by(assigned=True)
-    }
-
-    generals = 12
-    total_obs_hours = totals['number_on_1:1'] * 12 + totals['number_on_2:1'] * 24 + totals['number_in_SEC'] * 12 + \
-                      totals['number_in_LTS'] * 12 + generals
-
-    print(f"\nNumber of Patients on Ward: {totals['patients_on_ward']}")
-    print(f"Number on 60m observations: {totals['number_on_60s']}")
-    print(f"Number on 30m observations: {totals['number_on_30s']}")
-    print(f"Number on 15m observations: {totals['number_on_15s']}")
-    print(f"Number on 1:1: {totals['number_on_1:1']}")
-    print(f"Number on 2:1: {totals['number_on_2:1']}")
-    print(f"Number in seclusion: {totals['number_in_SEC']}")
-    print(f"Number in LTS: {totals['number_in_LTS']}\n")
-    print(f'Total enhanced observation hours: {total_obs_hours - generals}')
-    staffing_matrix.calculate_staff_numbers(total_obs_hours, totals['patients_on_ward'])
-    print('\nStaff selected to complete observations')
-    for n, staff in enumerate(totals['assigned_staff']):
-        print(f'{n + 1}. {staff.name} ({staff.role})')
 
     main_menu()
 

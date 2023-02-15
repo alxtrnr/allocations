@@ -278,13 +278,14 @@ def assign_staff_to_obs():
     query = session.query(StaffTable)
     all_rows = query.all()
     print('\n', staff_team_df())
-
     select_staff = [staff_id for staff_id in input('\nID of staff to assign on obs: ').split()]
     selected_staff = [session.query(StaffTable).get(staff_id) for staff_id in select_staff]
 
+    # Set staff assigned. Single instance.
     if len(selected_staff) == 1:
         staff = selected_staff[0]
         staff.assigned = True
+    # Set staff assigned. Reset staff values if not assigned. Group instance.
     else:
         for staff in all_rows:
             if staff in selected_staff:
@@ -296,6 +297,7 @@ def assign_staff_to_obs():
                 staff.shift_duration = 0
                 staff.break_duration = 0
 
+    # Set start and end times of observation span
     start, stop = 'time', 'time'
     allocate_for = input(f'allocate for: long day(1), nights(2), custom hours(3)\n')
     for staff in selected_staff:
@@ -306,21 +308,23 @@ def assign_staff_to_obs():
         elif allocate_for == '3':
             start = input(f"Enter {staff.name}\'s start time in 24h format (HH:MM): ")
             stop = input(f"Enter {staff.name}\'s end time in 24h format (HH:MM): ")
-
-        staff.start_obs = (lambda x: datetime.datetime.strptime(x, '%H:%M').time())(start)
-        staff.end_obs = (lambda x: datetime.datetime.strptime(x, '%H:%M').time())(stop)
+        #  Convert strings to datetime objects to calculate obs duration
+        staff.start_obs = (lambda start_str: datetime.datetime.strptime(start_str, '%H:%M').time())(start)
+        staff.end_obs = (lambda end_str: datetime.datetime.strptime(end_str, '%H:%M').time())(stop)
         staff.shift_duration = (datetime.datetime.combine(datetime.date.today(), staff.end_obs) -
                                 datetime.datetime.combine(datetime.date.today(), staff.start_obs)).seconds / 3600
 
+        # Display confirmation of staff assigned to obs
+        print(f'{staff.name} ({staff.role}) has been assigned for observations from {staff.start_obs} to'
+              f' {staff.end_obs}')
+
+        # Use obs duration to calculate break duration
         if staff.shift_duration > 8:
             staff.break_duration = staff.shift_duration * 0.125
         elif staff.shift_duration == 8:
             staff.break_duration = staff.shift_duration * 0.0625
         else:
             staff.break_duration = 0
-
-        print(f'{staff.name} ({staff.role}) has been assigned for observations from {staff.start_obs} to'
-              f' {staff.end_obs}')
 
     session.commit()
     main_menu()
@@ -331,8 +335,8 @@ def staff_team_df():
     all_rows = query.all()
     data = [[row.id, row.name, row.role, row.assigned, row.start_obs, row.end_obs, row.shift_duration,
              row.break_duration] for row in all_rows]
-    df = pd.DataFrame(data, columns=['ID', 'Name', 'Role', 'Assigned', 'Obs Start', 'Obs End', 'Obs Duration',
-                                     'Break Duration'])
+    df = pd.DataFrame(data, columns=['ID', 'Name', 'Role', 'Assigned', 'ObsStart', 'ObsEnd', 'ObsHrs',
+                                     'BreakHrs'])
     all_staff = df.set_index('ID').sort_values(by='ID')
     return all_staff
 

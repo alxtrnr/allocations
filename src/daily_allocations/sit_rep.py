@@ -74,6 +74,11 @@ input_data = {
                        * 12 + queries['q_number_in_LTS'] * 12 + generals
 }
 
+
+def send_data():
+    return input_data
+
+
 # Data Frames
 dict_df_obs = {
     'df_staff_on_obs': pd.DataFrame(input_data['STAFF_ON_OBS'], columns=['Name', 'Start', 'End'], index=None),
@@ -114,8 +119,7 @@ def summary():
 session.close()
 
 
-def send_data():
-    return input_data
+
 
 # if __name__ == '__main__':
 #     send_data()

@@ -2,11 +2,11 @@ import datetime
 
 from daily_allocations import staffing_matrix
 from daily_allocations.sit_rep import summary
+from daily_allocations import shift_hours
 
 from datetime import timedelta
-
 import pandas as pd
-from daily_allocations import shift_hours
+
 from sqlalchemy import Column, Integer, String, Boolean, Time, Float
 from sqlalchemy import ForeignKey
 from sqlalchemy import create_engine
@@ -14,7 +14,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 
 # Create an engine to carry on with the table. This is the SQLite engine. If echo is True, the log is visible:
-engine = create_engine('sqlite:///allocations_db/test1.db', echo=False)
+# engine = create_engine('sqlite:///allocations_db/test1.db', echo=False)
+engine = create_engine('sqlite:///example.db')
 
 # Construct a sessionmaker object and bind it to the engine
 Session = sessionmaker(bind=engine)

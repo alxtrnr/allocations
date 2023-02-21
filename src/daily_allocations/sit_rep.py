@@ -29,7 +29,7 @@ class PatientTable(Base):
 
 
 # Connect to the database
-engine = create_engine('sqlite:////home/alex/PycharmProjects/allocations/allocations_db/test1.db', echo=False)
+engine = create_engine('sqlite:///example.db', echo=False)
 
 # Reflect the schema of the database into SQLAlchemy classes
 Base.metadata.create_all(engine)

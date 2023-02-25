@@ -69,7 +69,7 @@ input_data = {
                         queries['q_two_to_one']],
     'SEC':             [[patient.room_number, patient.name, patient.observation_level] for patient in queries['q_sec']],
     'LTS':             [[patient.room_number, patient.name, patient.observation_level] for patient in queries['q_lts']],
-    'SHIFT_HOURS':     shift_hours.ld_hours(),
+    'SHIFT_TIMES':     [(20, 24), (0, 7)],
     'total_obs_hours': queries['q_number_on_1to1'] * 12 + queries['q_number_on_2to1'] * 24 + queries['q_number_in_SEC']
                        * 12 + queries['q_number_in_LTS'] * 12 + generals
 }

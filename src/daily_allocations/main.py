@@ -58,12 +58,6 @@ OBS_LEVEL_DICT = {
     6: 'Seclusion',
     7: 'LTS'
 }
-TIME_STAMP = timedelta(minutes=30)
-FULL_DURATION = TIME_STAMP * 25
-MID_DURATION = TIME_STAMP * 15
-FULL_BREAK_DURATION = TIME_STAMP * 3
-MID_BREAK_DURATION = TIME_STAMP * 1
-
 
 def main_menu():
     choice = input("""
@@ -301,14 +295,51 @@ def assign_staff_to_obs():
     # Set start and end times of observation span
     start, stop = 'time', 'time'
     allocate_for = input(f'allocate for: long day(1), nights(2), custom hours(3)\n')
+    ds = {'08:00': '00:00',
+          '09:00': '01:00',
+          '10:00': '02:00',
+          '11:00': '03:00',
+          '12:00': '04:00',
+          '13:00': '05:00',
+          '14:00': '06:00',
+          '15:00': '07:00',
+          '16:00': '08:00',
+          '17:00': '09:00',
+          '18:00': '10:00',
+          '19:00': '11:00',
+          '20:00': '12:00'
+          }
+    ns = {'20:00': '00:00',
+          '21:00': '01:00',
+          '21:00': '02:00',
+          '23:00': '03:00',
+          '00:00': '04:00',
+          '01:00': '05:00',
+          '02:00': '06:00',
+          '03:00': '07:00',
+          '04:00': '08:00',
+          '05:00': '09:00',
+          '06:00': '10:00',
+          '07:00': '11:00',
+          '08:00': '12:00'
+          }
     for staff in selected_staff:
         if allocate_for == '1':
-            start, stop = '08:00', '20:00'
+            start, stop = ds['08:00'], ds['20:00']
         elif allocate_for == '2':
-            start, stop = '20:00', '08:00'
+            start, stop = ns['20:00'], ns['08:00']
+
         elif allocate_for == '3':
+            ask = input(input('Days or Nights: d/N'))
             start = input(f"Enter {staff.name}\'s start time in 24h format (HH:MM): ")
             stop = input(f"Enter {staff.name}\'s end time in 24h format (HH:MM): ")
+            if ask == 'd':
+                start = ds[start]
+                stop = ds[stop]
+            else:
+                start = ns[start]
+                stop = ns[stop]
+
         #  Convert strings to datetime objects to calculate obs duration
         staff.start_obs = (lambda start_str: datetime.datetime.strptime(start_str, '%H:%M').time())(start)
         staff.end_obs = (lambda end_str: datetime.datetime.strptime(end_str, '%H:%M').time())(stop)

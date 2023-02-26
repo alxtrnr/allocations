@@ -311,7 +311,7 @@ def assign_staff_to_obs():
           }
     ns = {'20:00': '00:00',
           '21:00': '01:00',
-          '21:00': '02:00',
+          '22:00': '02:00',
           '23:00': '03:00',
           '00:00': '04:00',
           '01:00': '05:00',
@@ -330,15 +330,13 @@ def assign_staff_to_obs():
             start, stop = ns['20:00'], ns['08:00']
 
         elif allocate_for == '3':
-            ask = input(input('Days or Nights: d/N'))
-            start = input(f"Enter {staff.name}\'s start time in 24h format (HH:MM): ")
-            stop = input(f"Enter {staff.name}\'s end time in 24h format (HH:MM): ")
+            ask = input('Days or Nights: d/N')
+            st = input(f"Enter {staff.name}\'s start time in 24h format (HH:MM): ")
+            et = input(f"Enter {staff.name}\'s end time in 24h format (HH:MM): ")
             if ask == 'd':
-                start = ds[start]
-                stop = ds[stop]
+                start, stop = ds[st], ds[et]
             else:
-                start = ns[start]
-                stop = ns[stop]
+                start, stop = ns[st], ns[et]
 
         #  Convert strings to datetime objects to calculate obs duration
         staff.start_obs = (lambda start_str: datetime.datetime.strptime(start_str, '%H:%M').time())(start)
@@ -347,8 +345,7 @@ def assign_staff_to_obs():
                                 datetime.datetime.combine(datetime.date.today(), staff.start_obs)).seconds / 3600
 
         # Display confirmation of staff assigned to obs
-        print(f'{staff.name} ({staff.role}) has been assigned for observations from {staff.start_obs} to'
-              f' {staff.end_obs}')
+        print(f'{staff.name} ({staff.role}) has been assigned for observations')
 
         # Use obs duration to calculate break duration
         if staff.shift_duration > 8:

@@ -131,17 +131,14 @@ def print_results(staff, patients, times, x):
     # Create a table to display the results
     pd.set_option('display.max_columns', None)
 
-    # Define the start and end times for the schedule
+    # Define the start time for the schedule
     start_time = 8
-    end_time = 19
 
-    # Define the hours to use as index for the results table
-    hours = list(range(start_time, end_time + 1))
-
-    # if ask == 'd':
-    #     hours = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
-    # else:
-    #     hours = ['20', '21', '22', '23', '00', '01', '02', '03', '04', '05', '06', '07']
+    if ask == 'd':
+        hours = [f"{hour:02}:00" for hour in range(8, 20)]
+    else:
+        hours = [f"{hour:02}:00" for hour in range(20, 24)] + [f"{hour:02}:00" for hour in range(0, 8)]
+        start_time = 20
 
     # Create a new index for the results table using the hours list
     results = pd.DataFrame(columns=patients, index=hours)
@@ -150,8 +147,11 @@ def print_results(staff, patients, times, x):
     for j in patients:
         for k in times:
             assigned_staff = [i['name'] for i in staff if x[(i['name'], j, k)].varValue == 1]
-            hour = k + start_time - 1  # calculate the hour based on the time slot index
-            results.loc[hour][j] = ', '.join(assigned_staff)
+            if ask == 'd':
+                hour = k + start_time - 1
+            else:
+                hour = (k + start_time - 1) % 24
+            results.loc[f"{hour:02}:00"][j] = ', '.join(assigned_staff)
 
     # Convert the table to a list of lists
     table = results.reset_index().values.tolist()
